@@ -1,0 +1,50 @@
+// testLogin.js - Run this in your Replit shell with: node testLogin.js
+
+const axios = require('axios');
+
+async function testLogin() {
+  const API_URL = 'https://6c7ea870-ab13-43d4-a74d-3b5960b47919-00-3lty1kgnlowg.sisko.replit.dev';
+
+  console.log('Testing login...\n');
+
+  try {
+    // Test 1: Health check
+    console.log('1. Testing health endpoint...');
+    const healthResponse = await axios.get(`${API_URL}/health`);
+    console.log('✓ Health check passed:', healthResponse.data);
+
+    // Test 2: Login
+    console.log('\n2. Testing login endpoint...');
+    const loginResponse = await axios.post(`${API_URL}/api/auth/login`, {
+      email: 'admin@eduplatform.com',
+      password: 'Admin123'
+    });
+
+    console.log('✓ Login successful!');
+    console.log('Token:', loginResponse.data.token);
+    console.log('User:', loginResponse.data.user);
+
+    // Test 3: Dashboard stats with token
+    console.log('\n3. Testing dashboard access...');
+    try {
+      const dashboardResponse = await axios.get(`${API_URL}/api/dashboard/stats`, {
+        headers: {
+          'Authorization': `Bearer ${loginResponse.data.token}`
+        }
+      });
+      console.log('✓ Dashboard access successful!');
+      console.log('Stats:', dashboardResponse.data);
+    } catch (dashError) {
+      console.log('✗ Dashboard access failed:', dashError.response?.data || dashError.message);
+    }
+
+    console.log('\n✅ All tests completed!');
+    console.log('\nYou can use this token to access the admin panel:');
+    console.log(loginResponse.data.token);
+
+  } catch (error) {
+    console.error('Error:', error.response?.data || error.message);
+  }
+}
+
+testLogin();
